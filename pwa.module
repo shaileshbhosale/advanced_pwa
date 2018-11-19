@@ -1,0 +1,140 @@
+<?php
+
+/**
+ * @file
+ * Contains pwa.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\pwa\Model\SubscriptionsDatastorage;
+
+/**
+ * Implements hook_help().
+ */
+function pwa_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the pwa module.
+    case 'help.page.pwa':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Progressive Web App') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_page_attachments().
+ */
+function pwa_page_attachments(array &$page) {
+//  $path =  drupal_get_path('module', 'pwa');
+  $manifest = [
+        '#tag' => 'link',
+        '#attributes' => [
+          'rel' => 'manifest',
+          'href' => 'manifest.json',
+        ],
+      ];
+  $page['#attached']['html_head'][] = [$manifest, 'manifest'];
+  $public_key = \Drupal::config('pwa.pwa')->get('public_key');
+  $page['#attached']['drupalSettings']['pwa']['public_key'] = $public_key;
+
+  if (isset($public_key)) {
+    $page['#attached']['library'][] = 'pwa/pwa.js';
+  }
+}
+
+// function pwa_node_create(\Drupal\Core\Entity\EntityInterface $entity) {
+//   // kint($entity);die;
+//   $config = \Drupal::config('pwa.pwa.subscription');
+//   $publish_notify = $config->get('activate_feature');
+//   if (isset($publish_notify)) {
+//     $enabled_content_types = $config->get('enabled_content_types');
+//     // print_r($enabled_content_types);die;
+//     $node_type = $entity->getType();
+//     foreach($enabled_content_types as $type) {
+//       if ($type == $node_type) {
+//         $status = $entity->isPublished();
+//         $new = $entity->isNew();
+//         \Drupal::logger('pwa')->info('@type content was created, @status, @new', 
+//         array(
+//           '@type' => $node_type,
+//           '@status' => $status,
+//           '@new' => $new
+//           )
+//         );
+//         $pwa_config = \Drupal::config('pwa.pwa');
+//         $pwa_subscription = \Drupal::config('pwa.pwa.subscription');
+//         $notification_data = "New node created!!!";
+//         $subscriptions = SubscriptionsDatastorage::loadAll();
+//         $pwa_public_key = $pwa_config->get('public_key');
+//         $pwa_private_key = $pwa_config->get('private_key');
+    
+//         if (!empty($subscriptions) && !empty($pwa_public_key) && !empty($pwa_private_key)) {
+//           $batch = [
+//             'title' => t('Sending Push Notification...'),
+//             'operations' => [
+//               [
+//                 '\Drupal\pwa\Model\SubscriptionsDatastorage::sendNotificationStart',
+//                 [$subscriptions, $notification_data],
+//               ],
+//             ],
+//             'finished' => '\Drupal\pwa\Model\SubscriptionsDatastorage::notificationFinished',
+//           ];
+//           batch_set($batch);
+//           drupal_set_message(t('Push notification sent successfully to  @entry users', ['@entry' => print_r(count($subscriptions), TRUE)]));
+//         }
+//       }
+//     }
+//   }
+// }
+
+function pwa_form_node_form_alter(&$form, FormStateInterface $form_state) {
+  $node = $form_state->getFormObject()->getEntity();
+  $nid=$node->id();
+  if(!($node->load($nid))) {
+    foreach (array_keys($form['actions']) as $action) {
+      if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
+        $form['actions'][$action]['#submit'][] = 'pwa_node_form_submit';
+      }
+    }
+  }
+}
+
+function pwa_node_form_submit($form, FormStateInterface $form_state) {
+  $node = $form_state->getFormObject()->getEntity();
+  $config = \Drupal::config('pwa.pwa.subscription');
+  $publish_notify = $config->get('activate_feature');
+  $nodepublished =  $node->isPublished();
+  $enabled_content_types = $config->get('enabled_content_types');
+  $node_type = $form_state->getFormObject()->getEntity()->getType();
+  foreach($enabled_content_types as $types) {
+    if($types == $node_type) {
+      $send_notifications = 1;
+    }
+  }
+  if(!empty($nodepublished) && !empty($send_notifications) && !empty($publish_notify)) {
+    $pwa_config = \Drupal::config('pwa.pwa');
+    $pwa_subscription = \Drupal::config('pwa.pwa.subscription');
+    $notification_data = "New node created!!!";
+    $subscriptions = SubscriptionsDatastorage::loadAll();
+    $pwa_public_key = $pwa_config->get('public_key');
+    $pwa_private_key = $pwa_config->get('private_key');
+    if (!empty($subscriptions) && !empty($pwa_public_key) && !empty($pwa_private_key)) {
+      $batch = [
+        'title' => t('Sending Push Notification...'),
+        'operations' => [
+          [
+            '\Drupal\pwa\Model\SubscriptionsDatastorage::sendNotificationStart',
+            [$subscriptions, $notification_data],
+          ],
+        ],
+        'finished' => '\Drupal\pwa\Model\SubscriptionsDatastorage::notificationFinished',
+      ];
+      batch_set($batch);
+      drupal_set_message(t('Push notification sent successfully to  @entry users', ['@entry' => print_r(count($subscriptions), TRUE)]));
+    }
+  }
+}

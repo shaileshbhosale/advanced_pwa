@@ -1,0 +1,12 @@
+# pwa.pwa_form:
+#   title: 'PWA Settings'
+#   route_name: pwa.config
+#   description: 'Progressive Web App settings.'
+#   parent: system.admin_config_system
+#   weight: 99
+
+pwa.admin_settings:
+  title: 'PWA Settings'
+  description: 'Configure the Manifest.json output.'
+  parent: system.admin_config_system
+  route_name: pwa.settings

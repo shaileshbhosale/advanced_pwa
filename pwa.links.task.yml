@@ -1,0 +1,25 @@
+pwa.config:
+  route_name: pwa.settings
+  base_route: pwa.settings
+  title: 'Progressive web app configuration'
+
+pwa.config.push_conf:
+  route_name: pwa.config.push_conf
+  base_route: pwa.settings
+  title: 'Push Notification Configuration'
+
+pwa.config.subscription:
+  route_name: pwa.config.subscription
+  base_route: pwa.settings
+  title: 'Push Notification Subscription'
+
+pwa.subscription_list:
+  route_name: pwa.subscription_list
+  base_route: pwa.settings
+  title: 'Push Notification Subscription List'
+
+pwa.config.broadcast:
+  route_name: pwa.config.broadcast
+  base_route: pwa.settings
+  title: 'Broadcast Push Notification'
+

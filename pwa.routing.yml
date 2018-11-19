@@ -1,0 +1,79 @@
+pwa.settings:
+  path: '/admin/config/system/pwa'
+  defaults:
+    _form: '\Drupal\pwa\Form\ManifestConfigurationForm'
+    _title: 'Progressive web app configuration'
+  requirements:
+    _permission: 'access content'
+  options:
+    _admin_route: TRUE
+
+pwa.manifest:
+  path: '/manifest.json'
+  defaults:
+    _controller: '\Drupal\pwa\Controller\PwaController::pwa_get_manifest'
+  requirements:
+    _permission: 'access content'
+
+pwa.config.push_conf:
+  path: '/admin/config/pwa/config'
+  defaults:
+    _form: '\Drupal\pwa\Form\PwaForm'
+    _title: 'PwaForm'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE
+
+pwa.config.subscription:
+  path: '/admin/config/pwa/config-subscription'
+  defaults:
+    _form: '\Drupal\pwa\Form\PwaSubscriptionForm'
+    _title: 'PwaSubscriptionForm'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE
+
+pwa.config.broadcast:
+  path: '/admin/config/pwa/config-broadcast'
+  defaults:
+    _form: '\Drupal\pwa\Form\PwaBroadcastForm'
+    _title: 'PwaBroadcastForm'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE
+
+pwa.subscribe:
+  path: '/pwa/subscribe'
+  defaults:
+    _controller: '\Drupal\pwa\Controller\PwaController::subscribe'
+    _title: 'subscribe'
+  requirements:
+    _permission: 'access content'
+
+pwa.unsubscribe:
+  path: '/pwa/unsubscribe'
+  defaults:
+    _controller: '\Drupal\pwa\Controller\PwaController::unsubscribe'
+    _title: 'unsubscribe'
+  requirements:
+    _permission: 'access content'
+
+pwa.subscription_list:
+  path: '/admin/config/pwa/subscription-list'
+  defaults:
+    _controller: '\Drupal\pwa\Controller\PwaController::subscriptionList'
+    _title: 'PWA Subscription list'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE
+
+pwa.serviceworker_file_data:
+  path: /serviceworker-pwa.js
+  defaults:
+    _controller: '\Drupal\pwa\Controller\PwaController::pwa_serviceworker_file_data'
+  requirements:
+    _permission: 'access content'

@@ -1,0 +1,10 @@
+name: Progressive web app
+type: module
+description: Progressive Web App
+core: 8.x
+package: Custom
+configure: 'pwa.config'
+
+dependencies:
+ - restui
+
