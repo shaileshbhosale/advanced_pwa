@@ -61,6 +61,35 @@ class PwaForm extends ConfigFormBase {
       '#default_value' => $config->get('private_key'),
       '#required' => true,
     ];
+    $form['icon'] = [
+        '#type' => 'details',
+        '#title' => t('PWA notification icon'),
+        '#open' => TRUE,
+      ];
+      $form['icon']['settings'] = [
+        '#type' => 'container',
+      ];
+      $form['icon']['settings']['icon_path'] = [
+        '#type' => 'textfield',
+        '#title' => t('Icon image'),
+        '#default_value' => $config->get('icon_path'),
+        '#disabled' => 'disabled',
+      ];
+      $form['icon']['settings']['icon_upload'] = [
+        '#type' => 'file',
+        '#title' => t('Upload icon image'),
+        '#maxlength' => 40,
+        '#description' => t("Upload PWA notification icon. Maximum allowed image diamention is 144 x 144."),
+        '#upload_validators' => [
+          'file_validate_is_image' => [],
+          'file_validate_extensions' => array('png gif jpg jpeg'),
+        ],
+        '#states' => array(
+          'enabled' => array(
+              ':input[name="activate_feature"]' => array('checked' => TRUE),
+          ),
+        )
+      ];
 
     $public_key = $config->get('public_key');
     if (empty($public_key)) {
@@ -81,7 +110,25 @@ class PwaForm extends ConfigFormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
-  }
+    $moduleHandler = \Drupal::service('module_handler');
+
+  if ($moduleHandler->moduleExists('file')){
+        // Check for a new uploaded logo.
+        if (isset($form['icon'])) {
+          $file = _file_save_upload_from_form($form['icon']['settings']['icon_upload'], $form_state, 0);
+   
+          if ($file) {
+            $error = file_validate_image_resolution($file, 144, 144);
+            if ($error) {
+              $form_state->setErrorByName('icon_upload', $this->t('Image diamention is greater than 144 x 144.'));
+            }
+            // Put the temporary file in form_values so we can save it on submit.
+            $form_state->setValue('icon_upload', $file);
+          }
+        }
+      }
+    }
+  
 
   /**
    * {@inheritdoc}
@@ -89,10 +136,17 @@ class PwaForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
 
+    if (!empty($form_state->getValue('icon_upload'))) {
+      $filename = file_unmanaged_copy($form_state->getValue('icon_upload')->getFileUri());
+      $form_state->setValue('icon_path', $filename);
+
+    }
+
     $this->config('pwa.pwa')
       ->set('gcm_key', trim($form_state->getValue('gcm_key')))
       ->set('public_key', trim($form_state->getValue('public_key')))
       ->set('private_key', trim($form_state->getValue('private_key')))
+      ->set('icon_path', $form_state->getValue('icon_path'))
       ->save();
   }
 

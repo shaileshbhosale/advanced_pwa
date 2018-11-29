@@ -179,9 +179,7 @@ class PwaController extends ControllerBase {
    */
   public function pwa_get_manifest() {
     $pwa_enabled = \Drupal::config('pwa.settings')->get('status.all');
-    print_r($pwa_enabled);
     if (!$pwa_enabled) {
-      echo "OK!!";
       return new JsonResponse([]);
     }
 

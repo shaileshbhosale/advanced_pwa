@@ -7,6 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Database\Connection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\pwa\Model\SubscriptionsDatastorage;
+use Drupal\Component\Serialization\Json;
 
 /**
  * Class PwaForm.
@@ -82,13 +83,20 @@ class PwaBroadcastForm extends FormBase {
     $pwa_config = \Drupal::config('pwa.pwa');
     $pwa_subscription = \Drupal::config('pwa.pwa.subscription');
     $host = \Drupal::request()->getHost();
+    $icon = $pwa_config->get('icon_path');
+    $icon_path = file_create_url($icon);
 
     $entry = [
       'title' => $form_state->getValue('title'),
-      'body' => $form_state->getValue('message'),
-      'icon' => $pwa_subscription->get('icon_path'),
+      'message' => $form_state->getValue('message'),
+      'icon' => $icon_path,
+      'url' => "",
+      'content-details' => [
+        'nodeid' => "",
+        'nodetype' => ""
+      ]
     ];
-    $notification_data = implode('<br>', array_filter($entry));
+    $notification_data = Json::encode($entry);
     $subscriptions = SubscriptionsDatastorage::loadAll();
 
     $pwa_public_key = $pwa_config->get('public_key');
@@ -98,21 +106,14 @@ class PwaBroadcastForm extends FormBase {
       drupal_set_message($this->t('Please set public & private key.'), 'error');
     }
     if (!empty($subscriptions) && !empty($pwa_public_key) && !empty($pwa_private_key)) {
-      $batch = [
-        'title' => $this->t('Sending Push Notification...'),
-        'operations' => [
-          [
-            '\Drupal\pwa\Model\SubscriptionsDatastorage::sendNotificationStart',
-            [$subscriptions, $notification_data],
-          ],
-        ],
-        'finished' => '\Drupal\pwa\Model\SubscriptionsDatastorage::notificationFinished',
-      ];
-      batch_set($batch);
-      drupal_set_message($this->t('Push notification sent successfully to  @entry users', ['@entry' => print_r(count($subscriptions), TRUE)]));
-    }
-    else {
-      drupal_set_message($this->t('Subscription list is empty.'), 'error');
+      /** @var QueueFactory $queue_factory */
+      $queue_factory = \Drupal::service('queue');
+      /** @var QueueInterface $queue */
+      $queue = $queue_factory->get('cron_send_notification');
+      $item = new \stdClass();
+      $item->subscriptions = $subscriptions;
+      $item->notification_data = $notification_data;
+      $queue->createItem($item);
     }
   }
 }

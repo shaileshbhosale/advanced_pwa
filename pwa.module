@@ -8,6 +8,9 @@
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\pwa\Model\SubscriptionsDatastorage;
+use Drupal\Core\Queue\QueueFactory;
+use Drupal\Core\Queue\QueueInterface;
+use Drupal\Component\Serialization\Json;
 
 /**
  * Implements hook_help().
@@ -29,7 +32,6 @@ function pwa_help($route_name, RouteMatchInterface $route_match) {
  * Implements hook_page_attachments().
  */
 function pwa_page_attachments(array &$page) {
-//  $path =  drupal_get_path('module', 'pwa');
   $manifest = [
         '#tag' => 'link',
         '#attributes' => [
@@ -45,51 +47,6 @@ function pwa_page_attachments(array &$page) {
     $page['#attached']['library'][] = 'pwa/pwa.js';
   }
 }
-
-// function pwa_node_create(\Drupal\Core\Entity\EntityInterface $entity) {
-//   // kint($entity);die;
-//   $config = \Drupal::config('pwa.pwa.subscription');
-//   $publish_notify = $config->get('activate_feature');
-//   if (isset($publish_notify)) {
-//     $enabled_content_types = $config->get('enabled_content_types');
-//     // print_r($enabled_content_types);die;
-//     $node_type = $entity->getType();
-//     foreach($enabled_content_types as $type) {
-//       if ($type == $node_type) {
-//         $status = $entity->isPublished();
-//         $new = $entity->isNew();
-//         \Drupal::logger('pwa')->info('@type content was created, @status, @new', 
-//         array(
-//           '@type' => $node_type,
-//           '@status' => $status,
-//           '@new' => $new
-//           )
-//         );
-//         $pwa_config = \Drupal::config('pwa.pwa');
-//         $pwa_subscription = \Drupal::config('pwa.pwa.subscription');
-//         $notification_data = "New node created!!!";
-//         $subscriptions = SubscriptionsDatastorage::loadAll();
-//         $pwa_public_key = $pwa_config->get('public_key');
-//         $pwa_private_key = $pwa_config->get('private_key');
-    
-//         if (!empty($subscriptions) && !empty($pwa_public_key) && !empty($pwa_private_key)) {
-//           $batch = [
-//             'title' => t('Sending Push Notification...'),
-//             'operations' => [
-//               [
-//                 '\Drupal\pwa\Model\SubscriptionsDatastorage::sendNotificationStart',
-//                 [$subscriptions, $notification_data],
-//               ],
-//             ],
-//             'finished' => '\Drupal\pwa\Model\SubscriptionsDatastorage::notificationFinished',
-//           ];
-//           batch_set($batch);
-//           drupal_set_message(t('Push notification sent successfully to  @entry users', ['@entry' => print_r(count($subscriptions), TRUE)]));
-//         }
-//       }
-//     }
-//   }
-// }
 
 function pwa_form_node_form_alter(&$form, FormStateInterface $form_state) {
   $node = $form_state->getFormObject()->getEntity();
@@ -117,24 +74,34 @@ function pwa_node_form_submit($form, FormStateInterface $form_state) {
   }
   if(!empty($nodepublished) && !empty($send_notifications) && !empty($publish_notify)) {
     $pwa_config = \Drupal::config('pwa.pwa');
-    $pwa_subscription = \Drupal::config('pwa.pwa.subscription');
-    $notification_data = "New node created!!!";
+    $icon = $pwa_config->get('icon_path');
+    $icon_path = file_create_url($icon);
+    $options = ['absolute' => TRUE];
+    $url = \Drupal\Core\Url::fromRoute('entity.node.canonical', ['node' => $node->id()], $options);
+    $url = $url->toString();
+    $entry = [
+      'title' => "New '$node_type' content is published. Click to view.",
+      'message' => "",
+      'icon' => $icon_path,
+      'url' => $url,
+      'content-details' => [
+        'nodeid' => $node->id(),
+        'nodetype' => $node_type
+      ]
+    ];
+    $notification_data = Json::encode($entry);
     $subscriptions = SubscriptionsDatastorage::loadAll();
     $pwa_public_key = $pwa_config->get('public_key');
     $pwa_private_key = $pwa_config->get('private_key');
     if (!empty($subscriptions) && !empty($pwa_public_key) && !empty($pwa_private_key)) {
-      $batch = [
-        'title' => t('Sending Push Notification...'),
-        'operations' => [
-          [
-            '\Drupal\pwa\Model\SubscriptionsDatastorage::sendNotificationStart',
-            [$subscriptions, $notification_data],
-          ],
-        ],
-        'finished' => '\Drupal\pwa\Model\SubscriptionsDatastorage::notificationFinished',
-      ];
-      batch_set($batch);
-      drupal_set_message(t('Push notification sent successfully to  @entry users', ['@entry' => print_r(count($subscriptions), TRUE)]));
+      /** @var QueueFactory $queue_factory */
+      $queue_factory = \Drupal::service('queue');
+      /** @var QueueInterface $queue */
+      $queue = $queue_factory->get('cron_send_notification');
+      $item = new \stdClass();
+      $item->subscriptions = $subscriptions;
+      $item->notification_data = $notification_data;
+      $queue->createItem($item);
     }
   }
 }

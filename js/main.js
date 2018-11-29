@@ -151,7 +151,7 @@
         }).then(function(resp) {
            // Transform the data into json.
            resp = resp.json();
-           comsole.log('subscribeToBackEnd ', resp);
+           console.log('subscribeToBackEnd ', resp);
         }).then(function(data) {
           console.log('subscribeToBackEnd ', data);
         }).catch(function (e) {

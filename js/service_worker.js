@@ -80,15 +80,17 @@ self.addEventListener('push', function(event) {
   }
 
   console.log(`[Service Worker] Push had this data: "${body}"`);
-
-  var options = {
-    body: body,
-    icon: 'modules/custom/pwa/images/icon_144.png',
-    badge: 'modules/custom/pwa/images/icon_144.png',
+  var str = JSON.parse(body);
+    var options = {
+    body: str["message"],
+    icon: str["icon"],
+    badge: str["icon"],
+    tag: str["icon"],
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
-      primaryKey: '1'
+      primaryKey: '1',
+      url: str["url"]
     },
     actions: [
       {action: 'explore', title: 'Explore this new world',
@@ -98,7 +100,7 @@ self.addEventListener('push', function(event) {
     ]
   };
   event.waitUntil(
-    self.registration.showNotification('Hello world!', options)
+    self.registration.showNotification(str["title"], options)
   );
 });
 
@@ -110,12 +112,10 @@ self.addEventListener('notificationclick', function(event) {
 
   if (action === 'close') {
     notification.close();
-/*
-  } else {
+  } else if (notification.data.url) {
     event.waitUntil(
-      clients.openWindow('https://mysyngentapwaacpqglwv4x.devcloud.acquia-sites.com/')
+      clients.openWindow(notification.data.url)
     );
-*/
   }
 });
 
