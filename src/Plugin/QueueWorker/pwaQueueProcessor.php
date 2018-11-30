@@ -19,7 +19,15 @@ class pwaQueueProcessor extends QueueWorkerBase {
    * {@inheritdoc}
    */
   public function processItem($response) {
-    \Drupal::logger('pwa')->info("Node publish push notification sent to " . print_r($response->subscriptions));
+    $str = json_decode($response->notification_data, true);
+    $nid = $str['content-details']['nodeid'];
+    $node_type = $str['content-details']['nodetype'];
+    $message = 'push notification for node:' . $nid . ' of type '. $node_type . ' is sent to ';
+    foreach($response->subscriptions as $sub)
+    {
+     $message .= ' subscriber_id:'.$sub->id;
+    } 
+    \Drupal::logger('pwa')->info($message);
     return SubscriptionsDatastorage::sendNotificationStart($response->subscriptions, $response->notification_data);
   }
 }
