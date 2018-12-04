@@ -208,8 +208,8 @@
 
 
       // Notification popup will appear when user allowed notification permission.
-      var confirmationDialog = Drupal.dialog('<div class="pwa_message_div" style="display: none !important;">This is test box!</div>', {
-        title: Drupal.t('Website notifications?'),
+      var confirmationDialog = Drupal.dialog('<div class="pwa_message_div" style="display: none !important;">This site may send you push notifications.</div>', {
+        title: Drupal.t('Allow website notifications?'),
         dialogClass: 'pwa-model-popup',
         resizable: false,
         buttons: [

@@ -3,7 +3,6 @@ var cacheName = 'syn-pwa-cache-v1';
 var filesToCache = [
   '/',
   'manifest.json',
-  'modules/custom/pwa/js/main.js',
   ];
 
 
@@ -85,7 +84,6 @@ self.addEventListener('push', function(event) {
     body: str["message"],
     icon: str["icon"],
     badge: str["icon"],
-    tag: str["icon"],
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -93,10 +91,7 @@ self.addEventListener('push', function(event) {
       url: str["url"]
     },
     actions: [
-      {action: 'explore', title: 'Explore this new world',
-        icon: 'modules/custom/pwa/images/tick.png'},
-      {action: 'close', title: 'Close',
-        icon: 'modules/custom/pwa/images/xmark.png'},
+      {action: 'close', title: 'Close'},
     ]
   };
   event.waitUntil(
@@ -109,12 +104,19 @@ self.addEventListener('notificationclick', function(event) {
 
   var notification = event.notification;
   var action = event.action;
+  var url;
+
+  if (notification.data.url) {
+    url = notification.data.url;
+  } else {
+    url = "/";
+  }
 
   if (action === 'close') {
     notification.close();
-  } else if (notification.data.url) {
+  } else {
     event.waitUntil(
-      clients.openWindow(notification.data.url)
+      clients.openWindow(url)
     );
   }
 });
