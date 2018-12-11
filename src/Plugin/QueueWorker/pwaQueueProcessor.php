@@ -3,7 +3,6 @@
 namespace Drupal\pwa\Plugin\QueueWorker;
 
 use Drupal\Core\Queue\QueueWorkerBase;
-use Drupal\pwa\Model\SubscriptionsDatastorage;
 
 /**
  * Processes Node Tasks.
@@ -28,6 +27,7 @@ class pwaQueueProcessor extends QueueWorkerBase {
      $message .= ' subscriber_id:'.$sub->id;
     } 
     \Drupal::logger('pwa')->info($message);
-    return SubscriptionsDatastorage::sendNotificationStart($response->subscriptions, $response->notification_data);
+    $sendNotificationService = \Drupal::service('pwa.push_notifications');
+    return $sendNotificationService::sendNotificationStart($response->subscriptions, $response->notification_data);
   }
 }
