@@ -1,9 +1,0 @@
-pwa.pwa.subscription:
-  type: config_object
-  label: 'PWA settings'
-  mapping: 
-    enabled_content_types:
-      type: sequence
-      label: 'Enabled Content types'
-      sequence:
-        type: string

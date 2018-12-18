@@ -1,5 +1,5 @@
 // Version: 1.0
-var cacheName = 'syn-pwa-cache-v1';
+var cacheName = 'syn-advanced_pwa-cache-v1';
 var filesToCache = [
   '/',
   'manifest.json',

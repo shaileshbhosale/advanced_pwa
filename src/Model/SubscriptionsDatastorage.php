@@ -1,17 +1,15 @@
 <?php
 
-namespace Drupal\pwa\Model;
+namespace Drupal\advanced_pwa\Model;
 
 use Minishlink\WebPush\WebPush;
 use Minishlink\WebPush\Subscription;
 
 /**
  * Class SubscriptionsDatastorage.
- *
- * @package Drupal\pwa\Model
  */
 class SubscriptionsDatastorage {
-  public static $subscriptionTable = 'pwa_subscriptions';
+  public static $subscriptionTable = 'advanced_pwa_subscriptions';
 
   /**
    * Save an entry in the database.
@@ -31,7 +29,7 @@ class SubscriptionsDatastorage {
     $arguments[':endpoint'] = $entry['subscription_endpoint'];
 
     $subscription_exist = db_select(self::$subscriptionTable)
-      ->fields('pwa_subscriptions')
+      ->fields('advanced_pwa_subscriptions')
       ->where('subscription_endpoint=:endpoint', $arguments)
       ->execute()
       ->fetchAll();
@@ -40,13 +38,13 @@ class SubscriptionsDatastorage {
     }
 
     try {
-      $return_value = db_insert('pwa_subscriptions')
+      $return_value = db_insert('advanced_pwa_subscriptions')
         ->fields($entry)
         ->execute();
     }
     catch (\Exception $e) {
       drupal_set_message(t('db_insert failed. Message = %message, query= %query',
-       ['%message' => $e->getMessage(), '%query' => $e->query_string]), 'error');
+        ['%message' => $e->getMessage(), '%query' => $e->query_string]), 'error');
     }
 
     return $return_value;
@@ -70,35 +68,34 @@ class SubscriptionsDatastorage {
     $arguments[':endpoint'] = $entry['subscription_endpoint'];
 
     $subscription_exist = db_select(self::$subscriptionTable)
-      ->fields('pwa_subscriptions')
+      ->fields('advanced_pwa_subscriptions')
       ->where('subscription_endpoint=:endpoint', $arguments)
       ->execute()
       ->fetchAll();
     if (!$subscription_exist) {
-      return null;
+      return NULL;
     }
 
     try {
-      $return_value = db_delete('pwa_subscriptions')
+      $return_value = db_delete('advanced_pwa_subscriptions')
         ->where('subscription_endpoint=:endpoint', $arguments)
         ->execute();
     }
     catch (\Exception $e) {
       drupal_set_message(t('db_delete failed. Message = %message, query= %query',
-       ['%message' => $e->getMessage(), '%query' => $e->query_string]), 'error');
+        ['%message' => $e->getMessage(), '%query' => $e->query_string]), 'error');
     }
 
     return $return_value;
   }
-
 
   /**
    * Load all client subscription details to send notification.
    */
   public static function loadAll() {
     // Read all fields from the browser_subscriptions table.
-    $select = db_select(self::$subscriptionTable, 'pwa_subscriptions');
-    $select->fields('pwa_subscriptions');
+    $select = db_select(self::$subscriptionTable, 'advanced_pwa_subscriptions');
+    $select->fields('advanced_pwa_subscriptions');
     return $select->execute()->fetchAll();
   }
 
@@ -117,8 +114,8 @@ class SubscriptionsDatastorage {
         $subscription_endpoint = $subscription->subscription_endpoint;
         $key = $subscription_data['key'];
         $token = $subscription_data['token'];
-        $public_key = \Drupal::config('pwa.pwa')->get('public_key');
-        $private_key = \Drupal::config('pwa.pwa')->get('private_key');
+        $public_key = \Drupal::config('advanced_pwa.advanced_pwa')->get('public_key');
+        $private_key = \Drupal::config('advanced_pwa.advanced_pwa')->get('private_key');
 
         if (!empty($key) && !empty($token) && !empty($subscription_endpoint)) {
           $host = \Drupal::request()->getHost();
@@ -154,4 +151,3 @@ class SubscriptionsDatastorage {
   }
 
 }
-

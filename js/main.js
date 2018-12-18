@@ -1,91 +1,91 @@
 (function($, Drupal, drupalSettings) {
-  Drupal.behaviors.pwa = {
-    attach: function (context, settings) {
-      const applicationServerPublicKey = drupalSettings.pwa.public_key;
-      const baseUrl = (window.location.protocol + '//' + window.location.host) + (drupalSettings.path.baseUrl);
+  Drupal.behaviors.advanced_pwa = {
+    attach(context, settings) {
+      const applicationServerPublicKey = drupalSettings.advanced_pwa.public_key;
+      const baseUrl = `${window.location.protocol}//${window.location.host}${
+        drupalSettings.path.baseUrl
+      }`;
 
-      if (!(applicationServerPublicKey)) {
+      if (!applicationServerPublicKey) {
         return;
       }
 
-      if (!('serviceWorker' in navigator)) {
+      if (!("serviceWorker" in navigator)) {
         // Service Worker isn't supported on this browser, disable or hide UI.
-        console.log('service worker not supported');
+        console.log("service worker not supported");
         return;
       }
 
-      if (!('PushManager' in window)) {
+      if (!("PushManager" in window)) {
         // Push isn't supported on this browser, disable or hide UI.
-        console.log('PushManager not supported');
+        console.log("PushManager not supported");
         return;
       }
 
       // Requesting notification permission
-      if (!('Notification' in window)) {
+      if (!("Notification" in window)) {
         // Notification isn't supported on this browser, disable or hide UI.
-        console.log('Notification not supported');
+        console.log("Notification not supported");
         return;
       }
-      else {
-        console.log('Notification is supported');
-      }
+      console.log("Notification is supported");
 
-      if (Notification.permission === 'denied') {
-        console.log('Notification permission denied');
+      if (Notification.permission === "denied") {
+        console.log("Notification permission denied");
         return;
       }
-
 
       // register service worker
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('serviceworker-pwa.js', { scope: '/' })
-        .then(function(registration) {
-          console.log('Registration successful, scope is:', registration.scope);
-        })
-        .catch(function(error) {
-          console.log('Service worker registration failed, error:', error);
-        });
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("serviceworker-advanced_pwa.js", { scope: "/" })
+          .then(registration => {
+            console.log(
+              "Registration successful, scope is:",
+              registration.scope
+            );
+          })
+          .catch(error => {
+            console.log("Service worker registration failed, error:", error);
+          });
 
         // Then later, request a one-off sync:
-        navigator.serviceWorker.ready.then(function(registration) {
-          return registration.sync.register('synFirstSync');
-        }); 
+        navigator.serviceWorker.ready.then(registration =>
+          registration.sync.register("synFirstSync")
+        );
       }
 
-      window.addEventListener('beforeinstallprompt', function(e) {
-        e.userChoice.then(function(choiceResult) {          
+      window.addEventListener("beforeinstallprompt", e => {
+        e.userChoice.then(choiceResult => {
           console.log(choiceResult.outcome);
-          
-          if(choiceResult.outcome == 'dismissed') {
-            console.log('User cancelled homescreen install');
+
+          if (choiceResult.outcome === "dismissed") {
+            console.log("User cancelled homescreen install");
+          } else {
+            console.log("User added to homescreen");
           }
-          else {
-            console.log('User added to homescreen');
-          }
-        })
-        
+        });
       });
 
-
-      window.addEventListener('appinstalled', (evt) => {
-        app.logEvent('PWA', 'installed');
+      window.addEventListener("appinstalled", evt => {
+        app.logEvent("advanced_pwa", "installed");
       });
 
       // To determine if the app was launched in standalone mode in non-Safari browsers.
-      if (window.matchMedia('(display-mode: standalone)').matches) {
-        console.log('display-mode is standalone');
+      if (window.matchMedia("(display-mode: standalone)").matches) {
+        console.log("display-mode is standalone");
       }
 
       // To determine if the app was launched in standalone mode in Safari.
       if (window.navigator.standalone === true) {
-        console.log('display-mode is standalone');
+        console.log("display-mode is standalone");
       }
 
       function urlB64ToUint8Array(base64String) {
-        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
         const base64 = (base64String + padding)
-        .replace(/\-/g, '+')
-        .replace(/_/g, '/');
+          .replace(/-/g, "+")
+          .replace(/_/g, "/");
 
         const rawData = window.atob(base64);
         const outputArray = new Uint8Array(rawData.length);
@@ -96,71 +96,83 @@
         return outputArray;
       }
 
-      function updatePushSubscription() {
-        navigator.serviceWorker.ready.then(function(registration) {
-          registration.pushManager.getSubscription().then(function(sub) {
-            if (!sub) {
-              console.log('Not subscribed to push service!');
-              subscribeUser();
-              return;
-            } else {
-              // We have a subscription, update the database
-              console.log('Subscription object: ', JSON.stringify(sub));
-            }
+      function subscribeToBackEnd(subscription) {
+        const key = subscription.getKey("p256dh");
+        const token = subscription.getKey("auth");
+        const SubcribeUrl = `${baseUrl}advanced_pwa/subscribe`;
+        console.log("sendSubscriptionToBackEnd ", subscription);
+
+        return fetch(SubcribeUrl, {
+          method: "POST",
+          body: JSON.stringify({
+            endpoint: subscription.endpoint,
+            key: key
+              ? btoa(String.fromCharCode.apply(null, new Uint8Array(key)))
+              : null,
+            token: token
+              ? btoa(String.fromCharCode.apply(null, new Uint8Array(token)))
+              : null
           })
-          .catch(function(e) {
-             console.log('Error subscribing: ', e);
+        })
+          .then(resp => {
+            // Transform the data into json.
+            resp = resp.json();
+            console.log("subscribeToBackEnd ", resp);
+          })
+          .then(data => {
+            console.log("subscribeToBackEnd ", data);
+          })
+          .catch(e => {
+            console.log("Unable to send subscription to backend:", e);
           });
-        });
       }
 
       function subscribeUser() {
-        console.log('subscribeUser');
-        const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
+        console.log("subscribeUser");
+        const applicationServerKey = urlB64ToUint8Array(
+          applicationServerPublicKey
+        );
 
-        navigator.serviceWorker.ready.then(function(registration) {
-          registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: applicationServerKey
-          }).then(function(sub) {
-            console.log('Endpoint URL: ', JSON.stringify(sub));
-            return subscribeToBackEnd(sub);
-          }).catch(function(e) {
-            if (Notification.permission === 'denied') {
-              console.warn('Permission for notifications was denied');
-            } else {
-              console.error('Unable to subscribe to push', e);
-            }
-          });
+        navigator.serviceWorker.ready.then(registration => {
+          registration.pushManager
+            .subscribe({
+              userVisibleOnly: true,
+              applicationServerKey
+            })
+            .then(sub => {
+              console.log("Endpoint URL: ", JSON.stringify(sub));
+              return subscribeToBackEnd(sub);
+            })
+            .catch(e => {
+              if (Notification.permission === "denied") {
+                console.warn("Permission for notifications was denied");
+              } else {
+                console.error("Unable to subscribe to push", e);
+              }
+            });
         });
       }
 
-      function subscribeToBackEnd(subscription) {
-        const key = subscription.getKey('p256dh');
-        const token = subscription.getKey('auth');
-        var subcribe_url = baseUrl + 'pwa/subscribe';
-        console.log('sendSubscriptionToBackEnd ', subscription);
-
-        return fetch(subcribe_url, {
-          method: 'POST',
-          body: JSON.stringify({
-            endpoint: subscription.endpoint,
-            key: key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : null,
-            token: token ? btoa(String.fromCharCode.apply(null, new Uint8Array(token))) : null
-          })
-        }).then(function(resp) {
-           // Transform the data into json.
-           resp = resp.json();
-           console.log('subscribeToBackEnd ', resp);
-        }).then(function(data) {
-          console.log('subscribeToBackEnd ', data);
-        }).catch(function (e) {
-          console.log('Unable to send subscription to backend:', e);
+      function updatePushSubscription() {
+        navigator.serviceWorker.ready.then(registration => {
+          registration.pushManager
+            .getSubscription()
+            .then(sub => {
+              if (!sub) {
+                console.log("Not subscribed to push service!");
+                subscribeUser();
+                return;
+              }
+              // We have a subscription, update the database
+              console.log("Subscription object: ", JSON.stringify(sub));
+            })
+            .catch(e => {
+              console.log("Error subscribing: ", e);
+            });
         });
       }
 
-
-/*
+      /*
       function unsubscribeUser() {
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.ready.then(function(registration) {
@@ -185,7 +197,7 @@
       function unSubscribeFromBackEnd(subscription) {
         const key = subscription.getKey('p256dh');
         const token = subscription.getKey('auth');
-        var subcribe_url = baseUrl + 'pwa/unsubscribe';
+        var subcribe_url = baseUrl + 'advanced_pwa/unsubscribe';
         console.log('sendSubscriptionToBackEnd ', subscription);
 
         return fetch(subcribe_url, {
@@ -206,53 +218,56 @@
 
 */
 
-
       // Notification popup will appear when user allowed notification permission.
-      var confirmationDialog = Drupal.dialog('<div class="pwa_message_div" style="display: none !important;">This site may send you push notifications.</div>', {
-        title: Drupal.t('Allow website notifications?'),
-        dialogClass: 'pwa-model-popup',
-        resizable: false,
-        buttons: [
-          {
-            text: Drupal.t('Allow'),
-            class: 'button button--allow',
-            click: function () {
-              updatePushSubscription();
-              confirmationDialog.close();
+      const confirmationDialog = Drupal.dialog(
+        '<div class="advanced_pwa_message_div" style="display: none !important;">This site may send you push notifications.</div>',
+        {
+          title: Drupal.t("Allow website notifications?"),
+          dialogClass: "advanced_pwa-model-popup",
+          resizable: false,
+          buttons: [
+            {
+              text: Drupal.t("Allow"),
+              class: "button button--allow",
+              click() {
+                updatePushSubscription();
+                confirmationDialog.close();
+              }
+            },
+            {
+              text: Drupal.t("Later"),
+              class: "button button--cancel",
+              click() {
+                confirmationDialog.close();
+              }
             }
-          },
-          {
-            text: Drupal.t('Later'),
-            class: 'button button--cancel',
-            click: function () {
-              confirmationDialog.close();
-            }
-          }
-        ],
-        closeOnEscape: false,
-        create: function () {
-
-        },
-        beforeClose: false,
-        close: function (event) {
+          ],
+          closeOnEscape: false,
+          create() {},
+          beforeClose: false,
+          close(event) {
             // Automatically destroy the DOM element that was used for the dialog.
             // $(event.target).remove();
+          }
         }
-      });
+      );
 
-        // Checking if the user is subcribed for notification, if not popup will appear.
-      navigator.serviceWorker.ready.then(serviceWorkerRegistration => serviceWorkerRegistration.pushManager.getSubscription())
-      .then(subscription => {
-        if (!subscription) {
-          // We aren't subscribed to push, so enable subscription.
-          confirmationDialog.showModal();
-          // return;.
-        }
-      })
-      .then(subscription => subscription)
-      .catch(e => {
-        console.error('Error when updating the subscription', e);
-      });
+      // Checking if the user is subcribed for notification, if not popup will appear.
+      navigator.serviceWorker.ready
+        .then(serviceWorkerRegistration =>
+          serviceWorkerRegistration.pushManager.getSubscription()
+        )
+        .then(subscription => {
+          if (!subscription) {
+            // We aren't subscribed to push, so enable subscription.
+            confirmationDialog.showModal();
+            // return;.
+          }
+        })
+        .then(subscription => subscription)
+        .catch(e => {
+          console.error("Error when updating the subscription", e);
+        });
     }
   };
 })(jQuery, Drupal, drupalSettings);

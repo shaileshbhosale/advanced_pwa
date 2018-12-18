@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\pwa\Functional;
+namespace Drupal\Tests\advanced_pwa\Functional;
 
 use Drupal\Core\Url;
 use Drupal\Tests\BrowserTestBase;
@@ -8,7 +8,7 @@ use Drupal\Tests\BrowserTestBase;
 /**
  * Simple test to ensure that main page loads with module enabled.
  *
- * @group pwa
+ * @group advanced_pwa
  */
 class LoadTest extends BrowserTestBase {
 
@@ -17,7 +17,7 @@ class LoadTest extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = ['pwa'];
+  public static $modules = ['advanced_pwa'];
 
   /**
    * A user with permission to administer site configuration.

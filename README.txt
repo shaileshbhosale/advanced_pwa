@@ -12,7 +12,8 @@ Installation
 ------------
 
  1. Install the pwa module.
- 2. Copy pwa/js/service_manager.js file into your website root folder e.g. /public_html or /docroot
+ 2. Copy pwa/js/service_manager.js file into your website root folder
+    e.g. /public_html or /docroot
  3. Enable 'Pwa rest resource' by visiting /admin/config/services/rest page.
 
 Documentation

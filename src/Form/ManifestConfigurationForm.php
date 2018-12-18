@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\pwa\Form;
+namespace Drupal\advanced_pwa\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -12,7 +12,7 @@ use Drupal\file\Entity\File;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Configure  PWA Manifest.
+ * Configure  advanced_pwa Manifest.
  */
 class ManifestConfigurationForm extends ConfigFormBase {
 
@@ -72,14 +72,14 @@ class ManifestConfigurationForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'pwa_settings_form';
+    return 'advanced_pwa_settings_form';
   }
 
   /**
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
-    return ['pwa.settings'];
+    return ['advanced_pwa.settings'];
   }
 
   /**
@@ -87,33 +87,33 @@ class ManifestConfigurationForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
-    // Get the default settings for the  PWA Module.
-    $config = $this->config('pwa.settings');
+    // Get the default settings for the  advanced_pwa Module.
+    $config = $this->config('advanced_pwa.settings');
     // Get the specific icons. Needed to get the correct path of the file.
-    $icon = \Drupal::config('pwa.settings')->get('icons.icon');
+    $icon = \Drupal::config('advanced_pwa.settings')->get('icons.icon');
     // Get the file id and path.
     $fid = $icon[0];
 
     // Start form.
-    $form['pwa_manifest_settings'] = [
+    $form['advanced_pwa_manifest_settings'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Push notification configuration'),
       '#open' => FALSE,
     ];
-    $form['pwa_manifest_settings']['description'] = [
+    $form['advanced_pwa_manifest_settings']['description'] = [
       '#markup' => $this->t('In order for push notifications and your Progressive Web App to work you will need to configure the settings below.'),
     ];
 
     // For now we will turn everything on or off with one checkbox. However we
     // should make it possible to easily extend this in the future.
-    $form['pwa_manifest_settings']['status_all'] = [
+    $form['advanced_pwa_manifest_settings']['status_all'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Enable push notifications and PWA'),
+      '#title' => $this->t('Enable push notifications and advanced_pwa'),
       '#default_value' => NULL !== $config->get('status.all') ? $config->get('status.all') : TRUE,
-      '#description' => $this->t('Disabling the push notifications and PWA will ensure that no user is able to configure and receive push notifications. Nor will any other Progressive Web App functions be available.'),
+      '#description' => $this->t('Disabling the push notifications and advanced_pwa will ensure that no user is able to configure and receive push notifications. Nor will any other Progressive Web App functions be available.'),
     ];
 
-    $form['pwa_manifest_settings']['short_name'] = [
+    $form['advanced_pwa_manifest_settings']['short_name'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Short name'),
       '#size' => 12,
@@ -121,14 +121,14 @@ class ManifestConfigurationForm extends ConfigFormBase {
       '#required' => TRUE,
       '#description' => $this->t('This is the name the user will see when they add your website to their homescreen. You might want to keep this short.'),
     ];
-    $form['pwa_manifest_settings']['name'] = [
+    $form['advanced_pwa_manifest_settings']['name'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Name'),
       '#size' => 30,
       '#default_value' => $config->get('name'),
       '#description' => $this->t('Enter the name of your website.'),
     ];
-    $form['pwa_manifest_settings']['icon'] = [
+    $form['advanced_pwa_manifest_settings']['icon'] = [
       '#type' => 'managed_file',
       '#title' => $this->t('General App Icon'),
       '#description' => $this->t('Provide a square (.png) image. This image serves as your icon when the user adds the website to their home screen. <i>Minimum dimensions are 512px by 512px.</i>'),
@@ -140,13 +140,13 @@ class ManifestConfigurationForm extends ConfigFormBase {
         'file_validate_image_resolution' => ['512x512', '512x512'],
       ],
     ];
-    $form['pwa_manifest_settings']['background_color'] = [
+    $form['advanced_pwa_manifest_settings']['background_color'] = [
       '#type' => 'color',
       '#title' => $this->t('Background Color'),
       '#default_value' => $config->get('background_color'),
       '#description' => $this->t('Select a background color for the launch screen. This is shown when the user opens the website from their homescreen.'),
     ];
-    $form['pwa_manifest_settings']['theme_color'] = [
+    $form['advanced_pwa_manifest_settings']['theme_color'] = [
       '#type' => 'color',
       '#title' => $this->t('Theme Color'),
       '#default_value' => $config->get('theme_color'),
@@ -154,18 +154,18 @@ class ManifestConfigurationForm extends ConfigFormBase {
     ];
 
     // Sub-section for Advanced Settings.
-    $form['pwa_manifest_advanced_settings'] = [
+    $form['advanced_pwa_manifest_advanced_settings'] = [
       '#type' => 'details',
       '#title' => $this->t('Advanced settings'),
       '#open' => FALSE,
     ];
-    $form['pwa_manifest_advanced_settings']['notice'] = [
+    $form['advanced_pwa_manifest_advanced_settings']['notice'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Please notice:'),
       '#open' => FALSE,
       '#description' => $this->t('These settings have been set automatically to serve the most common use cases. Only change these settings if you know what you are doing.'),
     ];
-    $form['pwa_manifest_advanced_settings']['start_url'] = [
+    $form['advanced_pwa_manifest_advanced_settings']['start_url'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Start URL'),
       '#size' => 15,
@@ -174,7 +174,7 @@ class ManifestConfigurationForm extends ConfigFormBase {
       '#default_value' => $config->get('start_url'),
       '#field_prefix' => $this->requestContext->getCompleteBaseUrl(),
     ];
-    $form['pwa_manifest_advanced_settings']['display'] = [
+    $form['advanced_pwa_manifest_advanced_settings']['display'] = [
       '#type' => 'select',
       '#title' => $this->t('Display'),
       '#default_value' => $config->get('display'),
@@ -185,7 +185,7 @@ class ManifestConfigurationForm extends ConfigFormBase {
         'browser' => $this->t('Browser'),
       ],
     ];
-    $form['pwa_manifest_advanced_settings']['orientation'] = [
+    $form['advanced_pwa_manifest_advanced_settings']['orientation'] = [
       '#type' => 'select',
       '#title' => $this->t('Orientation'),
       '#default_value' => $config->get('orientation'),
@@ -224,10 +224,10 @@ class ManifestConfigurationForm extends ConfigFormBase {
       // Save the file in the database.
       $file->save();
       $file_usage = \Drupal::service('file.usage');
-      $file_usage->add($file, 'pwa', 'icon', \Drupal::currentUser()->id());
+      $file_usage->add($file, 'advanced_pwa', 'icon', \Drupal::currentUser()->id());
     }
 
-    $config = $this->config('pwa.settings');
+    $config = $this->config('advanced_pwa.settings');
     $config->set('status.all', $form_state->getValue('status_all'))
       ->set('name', $form_state->getValue('name'))
       ->set('short_name', $form_state->getValue('short_name'))
