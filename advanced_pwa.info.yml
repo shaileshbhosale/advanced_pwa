@@ -3,6 +3,3 @@ type: module
 description: Progressive Web App
 core: 8.x
 configure: 'advanced_pwa.config'
-
-dependencies:
- - restui
