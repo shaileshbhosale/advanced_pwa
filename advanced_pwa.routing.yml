@@ -7,6 +7,7 @@ advanced_pwa.settings:
     _permission: 'access content'
   options:
     _admin_route: TRUE
+    no_cache: 'TRUE'
 
 advanced_pwa.manifest:
   path: '/manifest.json'

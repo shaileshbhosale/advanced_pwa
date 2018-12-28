@@ -40,7 +40,9 @@ function advanced_pwa_page_attachments(array &$page) {
   ];
   $page['#attached']['html_head'][] = [$manifest, 'manifest'];
   $public_key = \Drupal::config('advanced_pwa.advanced_pwa')->get('public_key');
+  $status_all = \Drupal::config('advanced_pwa.settings')->get('status.all');
   $page['#attached']['drupalSettings']['advanced_pwa']['public_key'] = $public_key;
+  $page['#attached']['drupalSettings']['advanced_pwa']['status_all'] = $status_all;
 
   if (isset($public_key)) {
     $page['#attached']['library'][] = 'advanced_pwa/advanced_pwa.js';
