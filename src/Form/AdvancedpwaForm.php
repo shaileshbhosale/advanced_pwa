@@ -80,7 +80,7 @@ class AdvancedpwaForm extends ConfigFormBase {
       '#type' => 'file',
       '#title' => t('Upload icon image'),
       '#maxlength' => 40,
-      '#description' => t("Upload advanced_pwa notification icon. Maximum allowed image diamention is 144 x 144."),
+      '#description' => t("Upload advanced_pwa notification icon. Maximum allowed image dimensions is 144 x 144. If image having larger dimensions is submitted then it will be resized to 144 * 144"),
       '#upload_validators' => [
         'file_validate_is_image' => [],
         'file_validate_extensions' => ['png gif jpg jpeg'],

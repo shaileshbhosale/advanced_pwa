@@ -52,12 +52,12 @@ class AdvancedpwaSubscriptionForm extends ConfigFormBase {
     $form['activate_feature'] = [
       '#type' => 'checkbox',
       '#default_value' => $config->get('activate_feature'),
-      '#title' => $this->t('activate this feature'),
+      '#title' => $this->t('activate published content notifications'),
+      '#description' => $this->t('notifications will be pushed for content of following checked content types is published'),
     ];
     $form['enabled_content_types'] = [
       '#type' => 'checkboxes',
-      '#title' => $this->t('Content'),
-      '#description' => $this->t('notifications will be pushed only for checked content types'),
+      '#title' => $this->t('Avaliable Content types'),
       '#options' => $contentTypesList,
       '#default_value' => $config->get('enabled_content_types'),
       '#states' => [

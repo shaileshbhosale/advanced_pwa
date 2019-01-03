@@ -97,20 +97,20 @@ class ManifestConfigurationForm extends ConfigFormBase {
     // Start form.
     $form['advanced_pwa_manifest_settings'] = [
       '#type' => 'fieldset',
-      '#title' => $this->t('Push notification configuration'),
+      '#title' => $this->t('Progressive Web App configuration'),
       '#open' => FALSE,
     ];
     $form['advanced_pwa_manifest_settings']['description'] = [
-      '#markup' => $this->t('In order for push notifications and your Progressive Web App to work you will need to configure the settings below.'),
+      '#markup' => $this->t('In order for push notifications and your Progressive Web App to work you will need to configure the settings below. After saving your changes you have to <B>clear site cache</B>'),
     ];
 
     // For now we will turn everything on or off with one checkbox. However we
     // should make it possible to easily extend this in the future.
     $form['advanced_pwa_manifest_settings']['status_all'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Enable push notifications and advanced_pwa'),
+      '#title' => $this->t('Enable push notifications'),
       '#default_value' => NULL !== $config->get('status.all') ? $config->get('status.all') : TRUE,
-      '#description' => $this->t('Disabling the push notifications and advanced_pwa will ensure that no user is able to configure and receive push notifications. Nor will any other Progressive Web App functions be available.'),
+      '#description' => $this->t('Disabling the push notifications will ensure that no user is able to receive push notifications'),
     ];
 
     $form['advanced_pwa_manifest_settings']['short_name'] = [
@@ -131,7 +131,7 @@ class ManifestConfigurationForm extends ConfigFormBase {
     $form['advanced_pwa_manifest_settings']['icon'] = [
       '#type' => 'managed_file',
       '#title' => $this->t('General App Icon'),
-      '#description' => $this->t('Provide a square (.png) image. This image serves as your icon when the user adds the website to their home screen. <i>Minimum dimensions are 512px by 512px.</i>'),
+      '#description' => $this->t('Provide a square (.png) image. This image serves as your icon when the user adds the website to their home screen. <i>Minimum dimensions are 512*512.</i>If image having larger dimensions is submitted then it will be resized to 512px * 512px'),
       '#default_value' => [$fid],
       '#required' => TRUE,
       '#upload_location' => file_default_scheme() . '://images/touch/',
