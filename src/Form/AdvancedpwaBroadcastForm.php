@@ -44,6 +44,10 @@ class AdvancedpwaBroadcastForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
+    $form['help'] = [
+      '#markup' => $this->t('message will be sent to all subscribed users when the cron will be executed next time <B> </B>'),
+    ];
+
     $form['title'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Title of the Message'),
@@ -111,6 +115,7 @@ class AdvancedpwaBroadcastForm extends FormBase {
       $item->subscriptions = $subscriptions;
       $item->notification_data = $notification_data;
       $queue->createItem($item);
+      drupal_set_message('message is added to queue successfully');
     }
   }
 

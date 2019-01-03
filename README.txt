@@ -44,7 +44,7 @@ Configuration
 Once you install the module, a link 'Advanced pwa Settings' will appear on '/admin/config' page under 'System'.
 
 1. Go to '/admin/config/system/advanced_pwa' to configure manifest related settings.
-   a. Enable 'Enable push notifications and advanced pwa' to enable this feature
+   a. Enable 'Enable push notifications' to enable push notification feature.Disabling the push notifications will ensure that no user will be able to receive push notifications
    b. 'Short name' will be name of the app that will appear on users home screen
    c. Enter Name of the app
    d. 'General App Icon' will be the icon that will appear on users home screen, along with app name

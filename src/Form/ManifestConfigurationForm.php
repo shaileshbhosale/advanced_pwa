@@ -110,7 +110,7 @@ class ManifestConfigurationForm extends ConfigFormBase {
       '#type' => 'checkbox',
       '#title' => $this->t('Enable push notifications'),
       '#default_value' => NULL !== $config->get('status.all') ? $config->get('status.all') : TRUE,
-      '#description' => $this->t('Disabling the push notifications will ensure that no user is able to receive push notifications'),
+      '#description' => $this->t('Disabling the push notifications will ensure that no user will be able to receive push notifications'),
     ];
 
     $form['advanced_pwa_manifest_settings']['short_name'] = [
