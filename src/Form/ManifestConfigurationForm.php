@@ -134,7 +134,7 @@ class ManifestConfigurationForm extends ConfigFormBase {
       '#description' => $this->t('Provide a square (.png) image. This image serves as your icon when the user adds the website to their home screen. <i>Minimum dimensions are 512*512.</i>If image having larger dimensions is submitted then it will be resized to 512px * 512px'),
       '#default_value' => [$fid],
       '#required' => TRUE,
-      '#upload_location' => file_default_scheme() . '://images/touch/',
+      '#upload_location' => file_default_scheme() . '://images/pwaimages/',
       '#upload_validators' => [
         'file_validate_extensions' => ['png'],
         'file_validate_image_resolution' => ['512x512', '512x512'],
