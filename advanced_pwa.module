@@ -20,7 +20,7 @@ function advanced_pwa_help($route_name, RouteMatchInterface $route_match) {
     case 'help.page.advanced_pwa':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('Progressive Web App') . '</p>';
+      $output .= '<p>' . t('Make your site a "Progressive Web App" and send "push notifications" to user') . '</p>';
       return $output;
 
     default:
