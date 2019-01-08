@@ -242,9 +242,8 @@ class ManifestConfigurationForm extends ConfigFormBase {
     // $my_app_status = $form_state->getValue('status_all');
     // if(!$my_app_status)
     // {
-    //   \Drupal::configFactory()->getEditable('advanced_pwa.advanced_pwa')->delete();
+    // \Drupal::configFactory()->getEditable('advanced_pwa.advanced_pwa')->delete();
     // }
-
     parent::submitForm($form, $form_state);
   }
 

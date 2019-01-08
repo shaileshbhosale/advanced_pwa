@@ -29,7 +29,7 @@ function advanced_pwa_uninstall() {
 
   // Delete all subscriptions.
   \Drupal::service('user.data')->delete('advanced_pwa');
-  //delete images stored by pwa
+  // Delete images stored by pwa.
   $pathofimagefolder = file_default_scheme() . '://images/pwaimages';
   file_unmanaged_delete_recursive($pathofimagefolder);
 }

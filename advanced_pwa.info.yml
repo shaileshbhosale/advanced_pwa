@@ -1,5 +1,5 @@
 name: Advanced Progressive web app
 type: module
-description: Progressive Web App
+description: Make your site a 'Progressive Web App' and send 'push notifications' to user
 core: 8.x
 configure: 'advanced_pwa.settings'
