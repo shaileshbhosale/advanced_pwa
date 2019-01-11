@@ -37,9 +37,9 @@ Installation
    - Install using composer: 'composer require drupal/advanced_pwa'
       (recommended)
       or
-   - Download and install 'Advanced Progressive web app' module
    - The above mentioned 'web-push' library dependency will be automatically
       installed if you are installing the module using composer
+   - Download and install 'Advanced Progressive web app' module
 2. If you did not install the module using composer, install the 'web-push'
     library manually:
    - Run 'composer require minishlink/web-push:^4.0' from your sites root
@@ -64,7 +64,7 @@ Once you install the module, a link 'Advanced pwa Settings' will appear on
    d. 'General App Icon' will be the icon that will appear on users home
         screen, along with app name
    e. 'Background Color' will be shown when the user opens the website from
-        their homescreen
+        their home screen
    f. 'Theme Color' is used to create a consistent experience in the browser
 2. Go to '/admin/config/advanced_pwa/config' to set up public / private keys
      and upload app notification icon
