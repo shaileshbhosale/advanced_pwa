@@ -6,7 +6,8 @@ CONTENTS
  * Installation
  * Configuration
  * Troubleshooting
- * Maintainers
+ * Queue and Cron
+ * Use 'push_notification' as a service
 
 About
 -----
@@ -81,8 +82,49 @@ Once you install the module, a link 'Advanced pwa Settings' will appear on
     'Broadcast Push Notification' (/admin/config/advanced_pwa/config-broadcast)
       page
 
+Queue and Cron
+--------------
+
+Considering the fact that there could be hundreds of users subscribed to the
+ site and multiple content editors either publishing content or sending
+  generic notifications, our module will not send notifications as soon as
+   content is published or generic message is sent. It will Queue the
+    notifications and will be sent on next cron run.
+
+You can either use Drupal core cron or any contributed cron modules like
+ 'Ultimate Cron'.
+
+If you choose to use 'Ultimate Cron' module, you will have to enable
+ 'Override cron queue processing' checkbox under path
+  '/admin/config/system/cron/settings'. This will expose queue workers as cron
+   jobs and will show under '/admin/config/system/cron/jobs'.
+
+Note: At the time of writing these instructions, this feature of 'Ultimate Cron'
+ module was experimental. Enable it only if you need it.
+
 Troubleshooting
 ---------------
 
 1. The current module works only with web-push library version 4.0
 2. Web-push library 4.0 needs php version 7.0 or higher
+
+Use 'push_notification' as a service
+------------------------------------
+
+You can use 'push_notification' functionality as a service from any of your
+  custom modules, if needed.
+Name of the service is 'advanced_pwa.push_notifications'.
+
+Usage example:
+----------------------------------------------------
+$sendNotificationService = \Drupal::service('advanced_pwa.push_notifications');
+
+return $sendNotificationService::sendNotificationStart($subscriptionData,
+  $notification_data);
+----------------------------------------------------
+
+'sendNotificationStart' is the method to which '$subscriptionData' and
+  '$notification_data' arguments needs to be passed.
+
+Check file 'AdvancedpwaQueueProcessor.php' for more details.
+
