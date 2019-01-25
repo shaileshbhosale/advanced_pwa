@@ -47,7 +47,7 @@ advanced_pwa.config.broadcast:
     _admin_route: TRUE
 
 advanced_pwa.subscribe:
-  path: '/advanced-pwa/subscribe'
+  path: '/advanced_pwa/subscribe'
   defaults:
     _controller: '\Drupal\advanced_pwa\Controller\AdvancedpwaController::subscribe'
     _title: 'subscribe'
@@ -55,7 +55,7 @@ advanced_pwa.subscribe:
     _permission: 'access content'
 
 advanced_pwa.unsubscribe:
-  path: '/advanced-pwa/unsubscribe'
+  path: '/advanced_pwa/unsubscribe'
   defaults:
     _controller: '\Drupal\advanced_pwa\Controller\AdvancedpwaController::unsubscribe'
     _title: 'unsubscribe'
