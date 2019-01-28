@@ -35,7 +35,10 @@ self.addEventListener('activate', function(event) {
 
 self.addEventListener('fetch', function(event) {
   console.log('Service Worker: Fetch', event.request.url);
-
+  if ( event.request.url.match( '^.*(\/admin\/).*$' ) || event.request.url.match( '^.*(\/node\/[0-9]+\/edit).*$' ) || event.request.url.match( '^.*(\/node\/*\/delete).*$' )) {
+    return false;
+}
+  else{
   event.respondWith(
     caches.open(cacheName).then(function(cache) {
       return cache.match(event.request).then(function (response) {
@@ -49,7 +52,7 @@ self.addEventListener('fetch', function(event) {
       });
     })
   );
-
+  }
 });
 
 /**
