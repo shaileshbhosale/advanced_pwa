@@ -5,8 +5,9 @@ CONTENTS
  * Pre-Requisites
  * Installation
  * Configuration
- * Troubleshooting
  * Queue and Cron
+ * Troubleshooting
+ * To Do
  * Use 'push_notification' as a service
 
 About
@@ -108,6 +109,14 @@ Troubleshooting
 1. The current module works only with web-push library version 4.0
 2. Web-push library 4.0 needs php version 7.0 or higher
 
+To Do
+------
+
+Currently no admin page is being cached, as admin pages are not needed to be
+ shown offline. We have a future plan to implement a form, which will accept
+  URLs to not get cached. This way user will be able to choose pages that need
+   not be chached.
+
 Use 'push_notification' as a service
 ------------------------------------
 
@@ -127,4 +136,3 @@ return $sendNotificationService::sendNotificationStart($subscriptionData,
   '$notification_data' arguments needs to be passed.
 
 Check file 'AdvancedpwaQueueProcessor.php' for more details.
-
