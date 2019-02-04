@@ -1,17 +1,17 @@
 CONTENTS
 ---------------------
    
- * About
- * Pre-Requisites
- * Installation
- * Configuration
- * Queue and Cron
- * Troubleshooting
- * To Do
- * Use 'push_notification' as a service
+ * INTRODUCTION
+ * REQUIREMENTS
+ * INSTALLATION
+ * CONFIGURATION
+ * QUEUE AND CRON
+ * TROUBLESHOOTING
+ * TO DO
+ * USE 'push_notification' AS A SERVICE
 
-About
------
+INTRODUCTION
+------------
 
 - This module will turn your website into a progressive web app
 - User can choose to subscribe or not to subscribe to push notifications
@@ -24,15 +24,15 @@ About
 - Site admin can view subscribed users (User id and subscription endpoint)
 
 
-Pre-Requisites
---------------
+REQUIREMENTS
+------------
 
 - php version 7.0 or higher
 - minishlink/web-push library version 4.0
 - Site domain should be SSL enabled. Push notifications only works on SSL
    enabled domains
 
-Installation
+INSTALLATION
 ------------
 
 1. Install 'Advanced Progressive web app' module
@@ -49,7 +49,7 @@ Installation
    Please note that the current module works only with web-push library
       version 4.0
 
-Configuration
+CONFIGURATION
 -------------
 
 Once you install the module, a link 'Advanced pwa Settings' will appear on
@@ -83,7 +83,7 @@ Once you install the module, a link 'Advanced pwa Settings' will appear on
     'Broadcast Push Notification' (/admin/config/advanced_pwa/config-broadcast)
       page
 
-Queue and Cron
+QUEUE AND CRON
 --------------
 
 Considering the fact that there could be hundreds of users subscribed to the
@@ -103,21 +103,21 @@ If you choose to use 'Ultimate Cron' module, you will have to enable
 Note: At the time of writing these instructions, this feature of 'Ultimate Cron'
  module was experimental. Enable it only if you need it.
 
-Troubleshooting
+TROUBLESHOOTING
 ---------------
 
 1. The current module works only with web-push library version 4.0
 2. Web-push library 4.0 needs php version 7.0 or higher
 
-To Do
-------
+TO DO
+-----
 
 Currently no admin page is being cached, as admin pages are not needed to be
  shown offline. We have a future plan to implement a form, which will accept
   URLs to not get cached. This way user will be able to choose pages that need
    not be chached.
 
-Use 'push_notification' as a service
+USE 'push_notification' AS A SERVICE
 ------------------------------------
 
 You can use 'push_notification' functionality as a service from any of your

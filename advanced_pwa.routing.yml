@@ -22,7 +22,7 @@ advanced_pwa.config.push_conf:
     _form: '\Drupal\advanced_pwa\Form\AdvancedpwaForm'
     _title: 'Push Notification Configuration'
   requirements:
-    _permission: 'access administration pages'
+    _permission: 'administer site configuration'
   options:
     _admin_route: TRUE
 
@@ -32,7 +32,7 @@ advanced_pwa.config.subscription:
     _form: '\Drupal\advanced_pwa\Form\AdvancedpwaSubscriptionForm'
     _title: 'Push Notification Content'
   requirements:
-    _permission: 'access administration pages'
+    _permission: 'administer site configuration'
   options:
     _admin_route: TRUE
 
@@ -42,7 +42,7 @@ advanced_pwa.config.broadcast:
     _form: '\Drupal\advanced_pwa\Form\AdvancedpwaBroadcastForm'
     _title: 'Broadcast Push Notification'
   requirements:
-    _permission: 'access administration pages'
+    _permission: 'administer site configuration'
   options:
     _admin_route: TRUE
 
@@ -68,7 +68,7 @@ advanced_pwa.subscription_list:
     _controller: '\Drupal\advanced_pwa\Controller\AdvancedpwaController::subscriptionList'
     _title: 'Push Notification Subscription List'
   requirements:
-    _permission: 'access administration pages'
+    _permission: 'administer site configuration'
   options:
     _admin_route: TRUE
 

@@ -63,7 +63,7 @@ class AdvancedpwaForm extends ConfigFormBase {
     ];
     $form['icon'] = [
       '#type' => 'details',
-      '#title' => t('advanced_pwa notification icon'),
+      '#title' => $this->t('advanced_pwa notification icon'),
       '#open' => TRUE,
     ];
     $form['icon']['settings'] = [
@@ -71,16 +71,16 @@ class AdvancedpwaForm extends ConfigFormBase {
     ];
     $form['icon']['settings']['icon_path'] = [
       '#type' => 'textfield',
-      '#title' => t('Icon image'),
+      '#title' => $this->t('Icon image'),
       '#default_value' => $config->get('icon_path'),
       '#disabled' => 'disabled',
-      '#description' => t("generate the public key to upload image"),
+      '#description' => $this->t("generate the public key to upload image"),
     ];
     $form['icon']['settings']['icon_upload'] = [
       '#type' => 'file',
-      '#title' => t('Upload icon image'),
+      '#title' => $this->t('Upload icon image'),
       '#maxlength' => 40,
-      '#description' => t("Upload advanced_pwa notification icon. Maximum allowed image dimensions is 144 x 144. If image having larger dimensions is submitted then it will be resized to 144 * 144"),
+      '#description' => $this->t("Upload advanced_pwa notification icon. Maximum allowed image dimensions is 144 x 144. If image having larger dimensions is submitted then it will be resized to 144 * 144"),
       '#upload_location' => file_default_scheme() . '://images/pwaimages/',
       '#upload_validators' => [
         'file_validate_is_image' => [],

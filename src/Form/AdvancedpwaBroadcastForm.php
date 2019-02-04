@@ -82,8 +82,6 @@ class AdvancedpwaBroadcastForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
 
     $advanced_pwa_config = \Drupal::config('advanced_pwa.advanced_pwa');
-    $advanced_pwa_subscription = \Drupal::config('advanced_pwa.advanced_pwa.subscription');
-    $host = \Drupal::request()->getHost();
     $icon = $advanced_pwa_config->get('icon_path');
     $icon_path = file_create_url($icon);
 
@@ -115,7 +113,7 @@ class AdvancedpwaBroadcastForm extends FormBase {
       $item->subscriptions = $subscriptions;
       $item->notification_data = $notification_data;
       $queue->createItem($item);
-      drupal_set_message('message is added to queue successfully');
+      drupal_set_message($this->t('message is added to queue successfully'));
     }
   }
 
