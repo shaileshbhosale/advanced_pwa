@@ -5,6 +5,7 @@ namespace Drupal\advanced_pwa\Form;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Entity\EntityStorageInterface;
 
 /**
  * Class AdvancedpwaSubscriptionForm.
@@ -12,12 +13,28 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class AdvancedpwaSubscriptionForm extends ConfigFormBase {
 
   /**
+   * The entity storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  protected $entityStorage;
+
+  /**
+   * Creates a new NodeType instance.
+   *
+   * @param \Drupal\Core\Entity\EntityStorageInterface $entity_storage
+   *   The entity storage.
+   */
+  public function __construct(EntityStorageInterface $entity_storage) {
+    $this->entityStorage = $entity_storage;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('config.factory'),
-      $container->get('module_handler')
+      $container->get('entity.manager')->getStorage('node_type')
     );
   }
 
@@ -44,7 +61,7 @@ class AdvancedpwaSubscriptionForm extends ConfigFormBase {
     $config = $this->config('advanced_pwa.advanced_pwa.subscription');
     $form = parent::buildForm($form, $form_state);
 
-    $contentTypes = \Drupal::service('entity.manager')->getStorage('node_type')->loadMultiple();
+    $contentTypes = $this->entityStorage->loadMultiple();
     $contentTypesList = [];
     foreach ($contentTypes as $contentType) {
       $contentTypesList[$contentType->id()] = $contentType->label();
@@ -67,13 +84,6 @@ class AdvancedpwaSubscriptionForm extends ConfigFormBase {
       ],
     ];
     return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    parent::validateForm($form, $form_state);
   }
 
   /**

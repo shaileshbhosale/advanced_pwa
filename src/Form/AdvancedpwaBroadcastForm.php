@@ -8,6 +8,7 @@ use Drupal\Core\Database\Connection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\advanced_pwa\Model\SubscriptionsDatastorage;
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Queue\QueueFactory;
 
 /**
  * Class AdvancedpwaBroadcastForm.
@@ -17,19 +18,28 @@ class AdvancedpwaBroadcastForm extends FormBase {
   protected $database;
 
   /**
+   * QueueFactory.
+   *
+   * @var \Drupal\Core\Queue\QueueFactory
+   */
+  protected $queueFactory;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('database')
+      $container->get('database'),
+      $container->get('queue')
     );
   }
 
   /**
    * {@inheritdoc}
    */
-  public function __construct(Connection $database) {
+  public function __construct(Connection $database, QueueFactory $queue) {
     $this->database = $database;
+    $this->queueFactory = $queue;
   }
 
   /**
@@ -81,7 +91,7 @@ class AdvancedpwaBroadcastForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
 
-    $advanced_pwa_config = \Drupal::config('advanced_pwa.advanced_pwa');
+    $advanced_pwa_config = $this->config('advanced_pwa.advanced_pwa');
     $icon = $advanced_pwa_config->get('icon_path');
     $icon_path = file_create_url($icon);
 
@@ -105,10 +115,7 @@ class AdvancedpwaBroadcastForm extends FormBase {
       drupal_set_message($this->t('Please set public & private key.'), 'error');
     }
     if (!empty($subscriptions) && !empty($advanced_pwa_public_key) && !empty($advanced_pwa_private_key)) {
-      // @var QueueFactory $queue_factory
-      $queue_factory = \Drupal::service('queue');
-      // @var QueueInterface $queue
-      $queue = $queue_factory->get('cron_send_notification');
+      $queue = $this->queueFactory->get('cron_send_notification');
       $item = new \stdClass();
       $item->subscriptions = $subscriptions;
       $item->notification_data = $notification_data;

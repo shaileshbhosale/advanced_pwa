@@ -5,11 +5,36 @@ namespace Drupal\advanced_pwa\Form;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Minishlink\WebPush\VAPID;
+use Drupal\Core\Extension\ModuleHandlerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class AdvancedpwaForm.
  */
 class AdvancedpwaForm extends ConfigFormBase {
+
+  /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('module_handler')
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(ModuleHandlerInterface $module_handler) {
+    $this->moduleHandler = $module_handler;
+  }
 
   /**
    * {@inheritdoc}
@@ -111,9 +136,8 @@ class AdvancedpwaForm extends ConfigFormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
-    $moduleHandler = \Drupal::service('module_handler');
 
-    if ($moduleHandler->moduleExists('file')) {
+    if ($this->moduleHandler->moduleExists('file')) {
       // Check for a new uploaded logo.
       if (isset($form['icon'])) {
         $file = _file_save_upload_from_form($form['icon']['settings']['icon_upload'], $form_state, 0);

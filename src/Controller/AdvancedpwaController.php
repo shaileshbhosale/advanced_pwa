@@ -9,8 +9,10 @@ use Drupal\Core\Database\Connection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\advanced_pwa\Model\SubscriptionsDatastorage;
 use Symfony\Component\HttpFoundation\Response;
-use Drupal\file\Entity\File;
 use Drupal\image\Entity\ImageStyle;
+use Psr\Log\LoggerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\State\StateInterface;
 
 /**
  * Class AdvancedpwaController.
@@ -20,20 +22,39 @@ class AdvancedpwaController extends ControllerBase {
   protected $database;
 
   /**
+   * A logger instance.
+   *
+   * @var \Psr\Log\LoggerInterface
+   */
+  protected $logger;
+
+  /**
+   * The state key/value store.
+   *
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected $state;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
     return new static(
-        $container->get('database')
+        $container->get('database'),
+        $container->get('logger.factory')->get('advanced_pwa'),
+        $container->get('entity_type.manager'),
+        $container->get('state')
     );
   }
 
   /**
    * {@inheritdoc}
    */
-  public function __construct(Connection $database) {
+  public function __construct(Connection $database, LoggerInterface $logger, EntityTypeManagerInterface $entity_type, StateInterface $state) {
     $this->database = $database;
-
+    $this->logger = $logger;
+    $this->fileStorage = $entity_type->getStorage('file');
+    $this->state = $state;
   }
 
   /**
@@ -45,7 +66,7 @@ class AdvancedpwaController extends ControllerBase {
   public function subscribe(Request $request) {
     if ($request) {
       $message = 'Subscribe: ' . $request->getContent();
-      \Drupal::logger('advanced_pwa')->info($message);
+      $this->logger->info($message);
 
       $data = json_decode($request->getContent(), TRUE);
       $entry['subscription_endpoint'] = $data['endpoint'];
@@ -65,7 +86,7 @@ class AdvancedpwaController extends ControllerBase {
   public function unsubscribe(Request $request) {
     if ($request) {
       $message = 'Un-subscribe : ' . $request->getContent();
-      \Drupal::logger('advanced_pwa')->info($message);
+      $this->logger->info($message);
 
       $data = json_decode($request->getContent(), TRUE);
       $entry['subscription_endpoint'] = $data['endpoint'];
@@ -131,13 +152,14 @@ class AdvancedpwaController extends ControllerBase {
    * Route generates the manifest file for the browser.
    */
   public function advancedpwaGetManifest() {
-    $advanced_pwa_enabled = \Drupal::config('advanced_pwa.settings')->get('status.all');
+    $configurations = $this->config('advanced_pwa.settings');
+    $advanced_pwa_enabled = $configurations->get('status.all');
     if (!$advanced_pwa_enabled) {
       return new JsonResponse([]);
     }
 
     // Get all the current settings stored in advanced_pwa.settings.
-    $config = \Drupal::config('advanced_pwa.settings')->get();
+    $config = $configurations->get();
 
     // Array filter used to filter the "_core:" key from the output.
     $allowed = [
@@ -160,12 +182,12 @@ class AdvancedpwaController extends ControllerBase {
 
       if ($config_key == 'icons') {
         // Get the specific icons. Needed to get the correct path of the file.
-        $icon = \Drupal::config('advanced_pwa.settings')->get('icons.icon');
+        $icon = $configurations->get('icons.icon');
 
         // Get the file id and path.
         $fid = $icon[0];
         // @var \Drupal\file\Entity\File $file
-        $file = File::load($fid);
+        $file = $this->fileStorage->load($fid);
         $path = $file->getFileUri();
 
         $all_image_styles = ImageStyle::loadMultiple();
@@ -204,7 +226,7 @@ class AdvancedpwaController extends ControllerBase {
    * Import service worker js.
    */
   public function advancedpwaServiceWorkerFileData() {
-    $query_string = \Drupal::state()->get('system.css_js_query_string') ?: 0;
+    $query_string = $this->state->get('system.css_js_query_string') ?: 0;
     $path = drupal_get_path('module', 'advanced_pwa');
     $data = 'importScripts("' . $path . '/js/service_worker.js?' . $query_string . '");';
 

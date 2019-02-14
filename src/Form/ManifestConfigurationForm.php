@@ -8,13 +8,29 @@ use Drupal\Core\Routing\RequestContext;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Path\PathValidatorInterface;
 use Drupal\Core\Path\AliasManagerInterface;
-use Drupal\file\Entity\File;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\file\FileUsage\FileUsageBase;
 
 /**
  * Configure  advanced_pwa Manifest.
  */
 class ManifestConfigurationForm extends ConfigFormBase {
+
+  /**
+   * The file storage service.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  protected $fileStorage;
+
+  /**
+   * Current user.
+   *
+   * @var \Drupal\Core\Session\AccountProxy
+   */
+  protected $currentUser;
 
   /**
    * The path alias manager.
@@ -48,12 +64,21 @@ class ManifestConfigurationForm extends ConfigFormBase {
    *   The path validator.
    * @param \Drupal\Core\Routing\RequestContext $request_context
    *   The request context.
+   * @param \Drupal\Core\Entity\EntityStorageInterface $file_storage
+   *   The request file_storage.
+   * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
+   *   The request currentUser.
+   * @param \Drupal\file\FileUsage\FileUsageBase $fileUsage
+   *   The request fileUsage.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, AliasManagerInterface $alias_manager, PathValidatorInterface $path_validator, RequestContext $request_context) {
+  public function __construct(ConfigFactoryInterface $config_factory, AliasManagerInterface $alias_manager, PathValidatorInterface $path_validator, RequestContext $request_context, EntityStorageInterface $file_storage, AccountProxyInterface $currentUser, FileUsageBase $fileUsage) {
     parent::__construct($config_factory);
     $this->aliasManager = $alias_manager;
     $this->pathValidator = $path_validator;
     $this->requestContext = $request_context;
+    $this->fileStorage = $file_storage;
+    $this->currentUser = $currentUser;
+    $this->fileUsage = $fileUsage;
   }
 
   /**
@@ -64,7 +89,10 @@ class ManifestConfigurationForm extends ConfigFormBase {
       $container->get('config.factory'),
       $container->get('path.alias_manager'),
       $container->get('path.validator'),
-      $container->get('router.request_context')
+      $container->get('router.request_context'),
+      $container->get('entity.manager')->getStorage('file'),
+      $container->get('current_user'),
+      $container->get('file.usage')
     );
   }
 
@@ -90,7 +118,7 @@ class ManifestConfigurationForm extends ConfigFormBase {
     // Get the default settings for the  advanced_pwa Module.
     $config = $this->config('advanced_pwa.settings');
     // Get the specific icons. Needed to get the correct path of the file.
-    $icon = \Drupal::config('advanced_pwa.settings')->get('icons.icon');
+    $icon = $this->config('advanced_pwa.settings')->get('icons.icon');
     // Get the file id and path.
     $fid = $icon[0];
 
@@ -214,17 +242,17 @@ class ManifestConfigurationForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
 
+    $currentUserId = $this->currentUser->id();
     $icon = $form_state->getValue('icon');
     // Load the object of the file by its fid.
-    $file = File::load($icon[0]);
+    $file = $this->fileStorage->load($icon[0]);
     // Set the status flag permanent of the file object.
     if (!empty($file)) {
       // Flag the file permanent.
       $file->setPermanent();
       // Save the file in the database.
       $file->save();
-      $file_usage = \Drupal::service('file.usage');
-      $file_usage->add($file, 'advanced_pwa', 'icon', \Drupal::currentUser()->id());
+      $this->fileUsage->add($file, 'advanced_pwa', 'icon', $currentUserId);
     }
 
     $config = $this->config('advanced_pwa.settings');
